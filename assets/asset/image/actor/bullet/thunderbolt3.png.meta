@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "bf7f80ef-2057-4921-af08-4db506665958",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "bf7f80ef-2057-4921-af08-4db506665958@6c48a",
+      "displayName": "thunderbolt3",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "bf7f80ef-2057-4921-af08-4db506665958",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "bf7f80ef-2057-4921-af08-4db506665958@f9941",
+      "displayName": "thunderbolt3",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": -30.5,
+        "offsetY": 162,
+        "trimX": 1,
+        "trimY": 1,
+        "width": 449,
+        "height": 698,
+        "rawWidth": 512,
+        "rawHeight": 1024,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -224.5,
+            -349,
+            0,
+            224.5,
+            -349,
+            0,
+            -224.5,
+            349,
+            0,
+            224.5,
+            349,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            1,
+            1023,
+            450,
+            1023,
+            1,
+            325,
+            450,
+            325
+          ],
+          "nuv": [
+            0.001953125,
+            0.3173828125,
+            0.87890625,
+            0.3173828125,
+            0.001953125,
+            0.9990234375,
+            0.87890625,
+            0.9990234375
+          ],
+          "minPos": [
+            -224.5,
+            -349,
+            0
+          ],
+          "maxPos": [
+            224.5,
+            349,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "bf7f80ef-2057-4921-af08-4db506665958@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": false,
+    "hasAlpha": true,
+    "redirect": "bf7f80ef-2057-4921-af08-4db506665958@6c48a"
+  }
+}
