@@ -3,5 +3,8 @@
   "uuid": "fe4f907b-6fd4-44cb-a881-775e8918cb35",
   "creator": {
     "version": "3.8.8"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

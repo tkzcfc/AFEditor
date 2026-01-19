@@ -19,6 +19,7 @@ export class AssetMapper {
             // 获取项目assets目录
             const projectPath = Editor.Project.path;
             const assetsPath = path.join(projectPath, 'assets');
+            const resourcesPath = path.join(assetsPath, 'resources');
             
             // 资源映射结果
             const assetMap: Record<string, string> = {};
@@ -27,7 +28,7 @@ export class AssetMapper {
             await this.scanDirectory(assetsPath, assetsPath, assetMap);
             
             // 生成输出文件路径
-            const outputPath = path.join(assetsPath, 'asset-uuid-map.json');
+            const outputPath = path.join(resourcesPath, 'asset-uuid-map.json');
             
             // 按路径排序后写入文件
             const sortedMap = Object.fromEntries(
