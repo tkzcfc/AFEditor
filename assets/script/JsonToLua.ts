@@ -103,8 +103,8 @@ function isValidWord(s: string): boolean {
 function toLua(obj: any, currDepth: number, CurrEntry?: string): string {
 	const pretty = MaxPrettyExpandDepth > currDepth;
 	const NextDepth = currDepth + 1;
-	CurrEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '\t' : '';
-	const ObjectEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '\t' : '';
+	CurrEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '    ' : '';
+	const ObjectEntry = (CurrEntry != undefined && pretty) ? CurrEntry + '    ' : '';
 	const EndLine = pretty ? '\n' : '';
 	const WriteSpace = pretty ? ' ' : '';
 	if (obj === null || obj === undefined) {

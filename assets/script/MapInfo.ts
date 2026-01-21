@@ -1,4 +1,4 @@
-import { _decorator, Component, Graphics, CCInteger, UITransform, Color, input, Input, EventKeyboard, KeyCode, Sprite, assetManager, find, AudioClip  } from 'cc';
+import { _decorator, Component, Graphics, CCInteger, UITransform, Color, AudioClip, find  } from 'cc';
 import { Export } from './Export';
 const {ccclass, property, executeInEditMode, requireComponent} = _decorator;
 

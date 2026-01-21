@@ -1,13 +1,39 @@
 
 
-import { assetManager, Node, Sprite, UITransform } from "cc";
+import { director, Node, Sprite, UITransform } from "cc";
 import { Config } from "./Config";
-import { jsonToLuaPretty } from "./JsonToLua";
+import { jsObjectToLuaPretty } from "./JsonToLua";
+import { PlatformFileSystem } from "./PlatformFileSystem";
 
 
 export class Export {
+    public static getSceneAssetUuid(): string {
+        const scene = director.getScene();
+        if (!scene) return '';
+
+        // console.log((`scene name: ${scene.name}`));
+
+        return (scene as any)._id
+    }
+
+    public static async getExportFileName(): Promise<string> {
+        let asset_uuid_map = await Config.getAssetUUidMap();
+        let uuid = this.fmtUUID(this.getSceneAssetUuid());
+        let filename = asset_uuid_map[uuid];
+
+        // 去掉后缀
+        filename = filename.replace(/\.[^/.]+$/, "");
+
+        // 加上后缀 .lua
+        filename = filename + ".lua";
+
+        return filename;
+    }
+
     public static async exportMapData(root: Node) {
-        console.log('开始导出地图数据');
+        let exportFilename = await this.getExportFileName();
+        console.log(`export filename: ${exportFilename}`);
+        console.log('start export map data...');
 
         let layer_node = root.getChildByName('layer');
         if (!layer_node) {
@@ -25,11 +51,12 @@ export class Export {
         layer["effectGroup"] = await this.exportGroupData(layer_node.getChildByName('effectGroup')!);
         map_data["layer"] = layer;
 
-        const json_string = JSON.stringify(map_data, null, 2);
-        const lua_string = jsonToLuaPretty(JSON.stringify(json_string));
-        console.log(lua_string);
+        const lua_table = jsObjectToLuaPretty(map_data);
+        const lua_code = `local M = ${lua_table}\nreturn M`;
 
-        console.log('导出地图数据完成');
+        PlatformFileSystem.saveTextFile(lua_code, exportFilename);
+
+        console.log('export map data done.');
     }
 
     static async exportGroupData(group_node) {
@@ -63,6 +90,7 @@ export class Export {
     }
 
     static fmtUUID(uuid: string): string {
+        // console.log(`raw UUID: ${uuid}`);
         return uuid.split('@').shift() || uuid;
     }
 
