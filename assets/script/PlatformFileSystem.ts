@@ -22,7 +22,13 @@ export class PlatformFileSystem {
     private static saveNative(content: string, filename: string): boolean {
         try {
             if(native.fileUtils.isAbsolutePath(filename) == false){
-                filename = native.fileUtils.getWritablePath() + "export/" + filename;
+                const defaultWritablePath = `D:/work/AxmolFighter/client/Content/src/af/config/`;
+                if (native.fileUtils.isDirectoryExist(defaultWritablePath)) {
+                    filename = defaultWritablePath + filename;
+                }
+                else{
+                    filename = native.fileUtils.getWritablePath() + "export/" + filename;
+                }
             }
 
             // 确保目录存在

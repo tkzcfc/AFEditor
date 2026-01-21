@@ -99,6 +99,8 @@ export class Export {
         if (url_type === 'img' && path.startsWith('resources/image/')) {
             path = path.substring('resources/image/'.length);
         }
+        // 去掉后缀
+        path = path.replace(/\.[^/.]+$/, "");
         return `${url_type}://${path}`;
     }
 }
