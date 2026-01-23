@@ -1,4 +1,3 @@
-// PlatformFileSystem.ts
 import { sys, native } from 'cc';
 
 export class PlatformFileSystem {

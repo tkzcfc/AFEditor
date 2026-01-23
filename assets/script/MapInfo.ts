@@ -1,78 +1,58 @@
-import { _decorator, Component, Graphics, CCInteger, UITransform, Color, AudioClip, find  } from 'cc';
-import { Export } from './Export';
-const {ccclass, property, executeInEditMode, requireComponent} = _decorator;
+import { _decorator, Component, Graphics, CCInteger, UITransform, AudioClip, find, Rect, Color  } from 'cc';
+import { Export } from './utils/Export';
+const {ccclass, property, executeInEditMode, requireComponent, playOnFocus} = _decorator;
 
 @ccclass('MapInfo')
-@executeInEditMode(true)
+@executeInEditMode
+@playOnFocus
 @requireComponent(Graphics)
 @requireComponent(UITransform)
 export class MapInfo extends Component {
-    // 边框颜色属性
-    @property(Color)
-    strokeColor: Color = Color.RED;
 
-    // 填充颜色属性
-    @property(Color)
-    fillColor: Color = Color.BLACK;
-    
-    @property({type: CCInteger, min: 1, max: 10})
-    lineWidth: number = 2;
+    /////////////////////////////////////////////////////////////////////////////////
+
+    /// 是否显示调试信息
+    @property({type: Boolean})
+    public showDebugInfo: boolean = true;
 
     /////////////////////////////////////////////////////////////////////////////////
 
     /// 地图宽度
-    @property({type: CCInteger, min: 1})
-    private _width: number = 40;
-
-    @property({type: CCInteger, min: 1})
-    get width(): number {
-        return this._width;
-    }
-    
-    set width(value: number) {
-        this._width = Math.max(1, Math.floor(value));
-        this.redraw();
-    }
+    @property({type: CCInteger, min: 1, step: 1, tooltip: "地图宽度，单位：像素"})
+    public width: number = 40;
     
     /// 地图高度
-    @property({type: CCInteger, min: 1})
-    private _height: number = 40;
-
-    @property({type: CCInteger, min: 1})
-    get height(): number {
-        return this._height;
-    }
-    
-    set height(value: number) {
-        this._height = Math.max(1, Math.floor(value));
-        this.redraw();
-    }
+    @property({type: CCInteger, min: 1, step: 1, tooltip: "地图高度，单位：像素"})
+    public height: number = 40;
 
     /// 是否为城镇地图
-    @property({type: Boolean})
+    @property({type: Boolean, tooltip: "是否为城镇地图"})
     isTown: boolean = false;
 
     /// 背景音乐
-    @property({type: AudioClip})
+    @property({type: AudioClip, tooltip: "地图背景音乐"})
     bgm: AudioClip | null = null;
 
     /// 主题
-    @property({type: String})
+    @property({type: String, tooltip: "地图主题"})
     theme: string = "";
 
     /// 名称
-    @property({type: String})
+    @property({type: String, tooltip: "地图名称"})
     mapName: string = "";
 
     /// 地平线高度
-    @property({type: CCInteger, min: 0})
+    @property({type: CCInteger, min: 0, step: 1, tooltip: "地平线高度"})
     horizon: number = 0;
+
+    /// 范围信息
+    @property({type: Rect, tooltip: "范围信息"})
+    scope: Rect = new Rect();
 
     
     /////////////////////////////////////////////////////////////////////////////////
 
     onLoad() {
-        this.redraw();
     }
 
     doExport() {
@@ -86,21 +66,7 @@ export class MapInfo extends Component {
             });
     }
     
-    onEnable() {
-        this.redraw();
-    }
-
-    onFocusInEditor() {
-        this.redraw();
-    }
-
-    onLostFocusInEditor() {
-        this.redraw();
-    }
-
-    private redraw() {
-        // 延迟一帧执行，避免频繁重绘
-        // this.scheduleOnce(() => this.doDraw());
+    protected update(dt: number): void {
         this.doDraw();
     }
 
@@ -110,20 +76,38 @@ export class MapInfo extends Component {
         
         if (!uiTrans || !g) return;
         
+        // 清除之前的绘制
+        g.clear();
+
+        this.width = Math.max(1, Math.floor(this.width));
+        this.height = Math.max(1, Math.floor(this.height));
         // 设置 UI 变换
         uiTrans.anchorX = 0;
         uiTrans.anchorY = 0;
-        uiTrans.setContentSize(this._width, this._height);
-        
-        // 清除之前的绘制
-        g.clear();
-        // 设置边框样式
-        g.strokeColor = this.strokeColor.clone();
-        g.lineWidth = this.lineWidth;
-        g.fillColor = this.fillColor.clone();
+        uiTrans.setContentSize(this.width, this.height);
 
-        // 先描边
-        g.rect(0, 0, this._width, this._height);
+        if (this.showDebugInfo) {
+            // 设置边框样式
+            g.strokeColor = Color.WHITE;
+            g.lineWidth = 2;
+            g.fillColor = new Color().fromHEX('#00000080');
+
+            // 绘制地图边框
+            g.rect(0, 0, this.width, this.height);
+            g.stroke();
+            g.fill();
+
+            // 绘制范围信息
+            g.fillColor = new Color().fromHEX('#8700f580');
+            g.rect(this.scope.x, this.scope.y, this.scope.width, this.scope.height);
+            
+            g.stroke();
+            g.fill();
+        }
+        
+        // 绘制水平线
+        g.fillColor = new Color().fromHEX('#ff0000ff');
+        g.rect(0, this.horizon, this.width, 5);
         g.stroke();
         g.fill();
     }

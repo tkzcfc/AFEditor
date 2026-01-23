@@ -4,7 +4,16 @@ import { director, Node, Sprite, UITransform } from "cc";
 import { Config } from "./Config";
 import { jsObjectToLuaPretty } from "./JsonToLua";
 import { PlatformFileSystem } from "./PlatformFileSystem";
+import { MapInfo } from "../MapInfo";
+import { ResourceURLBuilder } from "./ResourceURLBuilder";
 
+enum SpriteType
+{
+    kSpriteType_Simple,
+    kSpriteType_Tiled,
+    kSpriteType_Sliced,
+    kSpriteType_Filled,
+};
 
 export class Export {
     public static getSceneAssetUuid(): string {
@@ -31,8 +40,8 @@ export class Export {
     }
 
     public static async exportMapData(root: Node) {
-        let exportFilename = await this.getExportFileName();
-        console.log(`export filename: ${exportFilename}`);
+        let export_filename = await this.getExportFileName();
+        console.log(`export filename: ${export_filename}`);
         console.log('start export map data...');
 
         let layer_node = root.getChildByName('layer');
@@ -43,6 +52,7 @@ export class Export {
 
         let map_data = {};
         
+        // 导出各个图层数据
         let layer = {}
         layer["farGroup"] = await this.exportGroupData(layer_node.getChildByName('farGroup')!);
         layer["nearGroup"] = await this.exportGroupData(layer_node.getChildByName('nearGroup')!);
@@ -51,10 +61,28 @@ export class Export {
         layer["effectGroup"] = await this.exportGroupData(layer_node.getChildByName('effectGroup')!);
         map_data["layer"] = layer;
 
-        const lua_table = jsObjectToLuaPretty(map_data);
-        const lua_code = `local M = ${lua_table}\nreturn M`;
+        // 递归查找MapInfo组件
+        let map_info = root.getComponentInChildren(MapInfo);
+        map_data["info"] = {
+            width: Math.floor(map_info?.width) || 0,
+            height: Math.floor(map_info?.height) || 0,
+            isTown: map_info?.isTown || false,
+            name: map_info?.mapName || "",
+            theme: map_info?.theme || "",
+            horizon: Math.floor(map_info?.horizon) || 0,
+        }
+        map_data["scope"] = {
+            x: Math.floor(map_info?.scope.x) || 0,
+            y: Math.floor(map_info?.scope.y) || 0,
+            width: Math.floor(map_info?.scope.width) || 0,
+            height: Math.floor(map_info?.scope.height) || 0,
+        }
 
-        PlatformFileSystem.saveTextFile(lua_code, exportFilename);
+        const lua_table = jsObjectToLuaPretty(map_data);
+        // const lua_code = `local M = ${lua_table}\nreturn M`;
+        const lua_code = `return ${lua_table}`;
+
+        PlatformFileSystem.saveTextFile(lua_code, export_filename);
 
         console.log('export map data done.');
     }
@@ -65,10 +93,13 @@ export class Export {
 
         for (let node of group_node.children) {
             let uiTrans = node.getComponent(UITransform);
+
             
             let data = {}
             data['x'] = node.x;
             data['y'] = node.y;
+            data['sx'] = node.getScale().x;
+            data['sy'] = node.getScale().y;
             data['ax'] = uiTrans!.anchorX;
             data['ay'] = uiTrans!.anchorY;
             data['w'] = uiTrans!.width;
@@ -79,9 +110,34 @@ export class Export {
             {
                 const uuid = this.fmtUUID(sprite.spriteFrame.uuid);
                 let url = asset_uuid_map[uuid];
-                console.log(`资源 UUID: ${uuid} 对应路径: ${url}`);
+                // console.log(`资源 UUID: ${uuid} 对应路径: ${url}`);
+                
+                const url_builder = new ResourceURLBuilder(this.fmtUrl('spr', url));
 
-                data['url'] = this.fmtUrl('img', url);
+                const frame_size = sprite.spriteFrame.getOriginalSize();
+                const sprite_size = uiTrans!.contentSize;
+
+                if (frame_size.width !== sprite_size.width || frame_size.height !== sprite_size.height) {
+                    url_builder.appendParam('w', sprite_size.width);
+                    url_builder.appendParam('h', sprite_size.height);
+                }
+
+                switch (sprite.type) {
+                    case Sprite.Type.TILED:
+                        url_builder.appendParam('type', SpriteType.kSpriteType_Tiled);
+                        break;
+                    case Sprite.Type.SLICED:
+                        url_builder.appendParam('type', SpriteType.kSpriteType_Sliced);
+                        break;
+                    case Sprite.Type.FILLED:
+                        url_builder.appendParam('type', SpriteType.kSpriteType_Filled);
+                        break;
+                    default:
+                        break;
+                }
+
+                data['url'] = url_builder.build();
+                console.log(`build URL: ${data['url']}`);
                 group_data.push(data);
             }
         }
@@ -95,8 +151,8 @@ export class Export {
     }
 
     static fmtUrl(url_type: string, path: string): string {
-        // 如果url_type是img,则将path前缀 resources/image/ 去掉
-        if (url_type === 'img' && path.startsWith('resources/image/')) {
+        // 如果url_type是spr,则将path前缀 resources/image/ 去掉
+        if (url_type === 'spr' && path.startsWith('resources/image/')) {
             path = path.substring('resources/image/'.length);
         }
         // 去掉后缀
